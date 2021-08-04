@@ -112,7 +112,7 @@ def plotCorrvsparams(param_list, xcpeaks):
     plt.show()
 
 
-def plotCorr2D(xc_norm, xcfit, corners, fitflag):
+def plotCorr2D(xc_norm, xcfit = [], corners, fitflag):
     plt.imshow(xc_norm, origin='lower', extent=corners.tolist(),
                  aspect='auto', cmap=plt.get_cmap('YlOrRd'))
     plt.colorbar()
