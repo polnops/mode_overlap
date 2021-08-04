@@ -46,44 +46,8 @@ def cropData(x, y, z, bound, scale, res):
 
     return values, corners
 
-
-def plotComplexData(dat, param_list, bound=2000, scale=1, res=500j):
-             
-    """handles norm E, complex Ex and Ey, loops through param list"""
-
-    for i in range(len(param_list)): 
-        x,y,z = datToxyz(dat,i)
-
-        values, corners = cropData(x, y, z, bound, scale, res)    
-
-        if i%3 == 0:
-
-            fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(10,2))
-            fig.suptitle("w="+str(param_list[i])+':norm(E), Re(Ex), Im(Ex), Re(Ey), Im(Ey)')
-            axs[0].imshow(np.real(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('Greens'))
-  
-        elif i%3 == 1:
-            axs[1].imshow(np.real(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('bwr'))
-                
-            axs[2].imshow(np.imag(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('bwr'))
-
-            axs[1].set_yticklabels([])
-            axs[2].set_yticklabels([])
-            
-        elif i%3 == 2:
-            axs[3].imshow(np.real(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('bwr'))
-                
-            axs[4].imshow(np.imag(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('bwr'))
-
-            axs[3].set_yticklabels([])
-            axs[4].set_yticklabels([])
                   
-                    
+                  
 
 def getCorrelation(values_ref, values):
 
@@ -103,16 +67,8 @@ def fitCorrelation(xc_norm):
     return normpeak, xcfit
 
 
-def plotCorrvsparams(param_list, xcpeaks):
-    param_list = np.array(param_list, dtype=float)
-    plt.plot(param_list, xcpeaks, marker='o', linestyle='')
-    plt.locator_params(axis="x", nbins=4)
-    plt.ylabel("peak correlation")
-    plt.xlabel("width (nm)")
-    plt.show()
 
-
-def plotCorr2D(xc_norm, xcfit = [], corners, fitflag):
+def plotCorr2D(xc_norm, corners, fitflag, xcfit = []):
     plt.imshow(xc_norm, origin='lower', extent=corners.tolist(),
                  aspect='auto', cmap=plt.get_cmap('YlOrRd'))
     plt.colorbar()
@@ -123,38 +79,49 @@ def plotCorr2D(xc_norm, xcfit = [], corners, fitflag):
     plt.show()
 
 
-def convolveData(dat_ref, dat_list, param_list,
-                 bound=2000, scale = 1,
-                 res=100j, plotflag1 = False,
-                 plotflag2=True, fitflag= False,
-                 i=0):
+def plotComplexData(dat, param_list, bound=2000, scale=1, res=500j):
+             
+    """handles norm E, complex Ex and Ey, loops through param list"""
 
-    x = dat_ref[:, 0]
-    y = dat_ref[:, 1]
-    z = dat_ref[:, 2]
-    values_ref, corners_ref = cropData(x, y, z, bound,scale,res)     
+    for i in range(len(param_list)): 
+        x,y,z = datToxyz(dat,i)
 
-    xclist = []
-    xcpeaks = []
-    for i in range(len(param_list)):
+        values, corners = cropData(x, y, z, bound, scale, res)    
 
-        x = dat_list[:, 0]
-        y = dat_list[:, 1]
-        z = dat_list[:, 2+i]
+        if i%4 == 0:
 
-        values, corners     = cropData(x, y, z, bound,scale,res)       
-        xc_norm = getCorrelation(values_ref, values)
+            fig, axs = plt.subplots(nrows=1, ncols=7, figsize=(12,2))
+            fig.suptitle("w="+str(param_list[i])+
+            ':norm(E), Re(Ex), Im(Ex), Re(Ey), Im(Ey), Re(Ez), Im(Ez)')
+            axs[0].imshow(np.real(values), origin='lower', extent=corners.tolist(),
+                    aspect='equal', cmap=plt.get_cmap('Greens'))
+  
+        elif i%4 == 1:
+            axs[1].imshow(np.real(values), origin='lower', extent=corners.tolist(),
+                    aspect='equal', cmap=plt.get_cmap('bwr'))
+                
+            axs[2].imshow(np.imag(values), origin='lower', extent=corners.tolist(),
+                    aspect='equal', cmap=plt.get_cmap('bwr'))
 
-        if fitflag:
-            normpeak, xcfit = fitCorrelation(xc_norm)
-        else:
-            normpeak = np.max(xc_norm)
+            axs[1].set_yticklabels([])
+            axs[2].set_yticklabels([])
+            
+        elif i%4 == 2:
+            axs[3].imshow(np.real(values), origin='lower', extent=corners.tolist(),
+                    aspect='equal', cmap=plt.get_cmap('bwr'))
+                
+            axs[4].imshow(np.imag(values), origin='lower', extent=corners.tolist(),
+                    aspect='equal', cmap=plt.get_cmap('bwr'))
 
-        xclist.append(xc_norm)
-        xcpeaks.append(normpeak)
+            axs[3].set_yticklabels([])
+            axs[4].set_yticklabels([])
 
-        if plotflag1:
-            plotCorr2D(xc_norm, xcfit, corners, fitflag)
+        elif i%4 == 3:
+            axs[5].imshow(np.real(values), origin='lower', extent=corners.tolist(),
+                    aspect='equal', cmap=plt.get_cmap('bwr'))
+                
+            axs[6].imshow(np.imag(values), origin='lower', extent=corners.tolist(),
+                    aspect='equal', cmap=plt.get_cmap('bwr'))
 
-    if plotflag2:
-        plotCorrvsparams(param_list, xcpeaks)
+            axs[5].set_yticklabels([])
+            axs[6].set_yticklabels([])
