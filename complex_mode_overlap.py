@@ -23,9 +23,14 @@ def convertStrtocomplex(lst):
     b = np.char.replace(np.array(lst[9:]),'i','j')
     return np.array(b,complex)
 
-def datToxyz(dat, i = 0):
-    return np.real(dat[:, 0]), np.real(dat[:, 1]), dat[:, 2+i]
+def dattoxyComplex(dat, n_param, n_dim = 3):
+    
+    x = np.real(dat[:, 0]); y = np.real(dat[:, 1])
 
+    (m,n)   = np.shape(dat)
+    z = np.reshape(dat[:,2:],(m,n_param,n_dim+1))
+
+    return x, y, z
 
 def cropData(x, y, z, bound, scale, res):
 
@@ -46,16 +51,19 @@ def cropData(x, y, z, bound, scale, res):
 
     return values, corners
 
-                  
-                  
+def getComplexCorrelation(E_ref, E_i, i):
 
-def getCorrelation(values_ref, values):
+        xc = 0j*np.zeros(np.shape(E_ref[:,:,0,1]))
 
-        xc = signal.correlate2d(
-            values_ref, values, mode="same", boundary='wrap')
-        xc_norm = xc**2/np.sum(values_ref**2)/np.sum(values**2)
+        norm_factor = np.sum(E_ref[:,:,0,0]**2)*np.sum(E_i[:,:,i,0]**2)
 
-        return xc_norm
+        for j in [1,2,3]:
+            xc_j = signal.correlate2d(
+                np.conj(E_ref[:,:,0,j]), E_i[:,:,i,j]
+                , mode="same", boundary='wrap')
+            xc += np.abs(xc_j)**2/norm_factor
+            
+        return np.real(xc)
 
 
 def fitCorrelation(xc_norm):
@@ -65,7 +73,6 @@ def fitCorrelation(xc_norm):
     normpeak = gaussianfitparam[0]
 
     return normpeak, xcfit
-
 
 
 def plotCorr2D(xc_norm, corners, fitflag, xcfit = []):
@@ -78,6 +85,54 @@ def plotCorr2D(xc_norm, corners, fitflag, xcfit = []):
 
     plt.show()
 
+def plotCorrvsparams(param_list, xcpeaks, xcpeaks2 =[]):
+    param_list = np.array(param_list, dtype=float)
+    plt.plot(param_list, xcpeaks, marker='o', linestyle='', label = "fit")
+    if xcpeaks2:  
+        plt.plot(param_list, xcpeaks2, marker='o', linestyle='', label = "max")  
+    plt.locator_params(axis="x", nbins=4)
+    plt.ylabel("peak correlation")
+    plt.legend()
+    plt.xlabel("width (nm)")
+    plt.show()
+
+def convolveComplex(dat_ref, dat, param_list,
+                 bound=2000, scale = 1,
+                 res=100j, plotflag1 = False,
+                 plotflag2=True, fitflag= False,
+                 i=0):
+
+    param_list = np.unique(np.array(param_list,dtype=float))
+
+    xref, yref, zref = dattoxyComplex(dat_ref, 1)
+    values_ref, corners_ref = cropData(xref, yref, zref, bound,scale,res)   
+    #values dimension: (res, res, 1, 3)
+
+    n_param = len(param_list); xclist = []; xcpeaks1 = []; xcpeaks2 = []
+
+    x, y, z   = dattoxyComplex(dat, n_param)
+    values, corners = cropData(x, y, z, bound, scale, res)
+    #values dimension: (res, res, n_param, 3)
+
+    for i in range(n_param):
+               
+        xc_norm = getComplexCorrelation(values_ref, values, i)
+
+        normpeak1, xcfit = fitCorrelation(xc_norm)
+        
+        xclist.append(xc_norm)
+        xcpeaks1.append(normpeak1)
+        xcpeaks2.append(np.max(xc_norm))
+
+        if plotflag1:
+            plotCorr2D(xc_norm, corners, fitflag, xcfit = xcfit)
+
+    if plotflag2:
+        plotCorrvsparams(param_list, xcpeaks1, xcpeaks2)
+
+
+def datToxyz(dat, i = 0):
+    return np.real(dat[:, 0]), np.real(dat[:, 1]), dat[:, 2+i]
 
 def plotComplexData(dat, param_list, bound=2000, scale=1, res=500j):
              

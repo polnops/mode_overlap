@@ -2,7 +2,7 @@ import numpy as np
 from scipy import optimize
 
 
-def gaussian(height, center_x, center_y, width_x, width_y, rotation, offset):
+def gaussian(height, center_x, center_y, width_x, width_y, rotation):
     """Returns a gaussian function with the given parameters"""
     width_x = float(width_x)
     width_y = float(width_y)
@@ -15,45 +15,10 @@ def gaussian(height, center_x, center_y, width_x, width_y, rotation, offset):
         yp = x * np.sin(rotation) + y * np.cos(rotation)
         g = height*np.exp(
             -(((center_xp-xp)/width_x)**2 +
-                ((center_yp-yp)/width_y)**2)/2.) + offset
+                ((center_yp-yp)/width_y)**2)/2.)
         return g
     return rotgauss
 
-
-# def moments(data):
-#     """Returns (height, x, y, width_x, width_y)
-#     the gaussian parameters of a 2D distribution by calculating its
-#     moments """
-#     total = data.sum()
-#     X, Y = np.indices(data.shape)
-#     x = (X*data).sum()/total
-#     y = (Y*data).sum()/total
-#     sdat = np.sort(data.flatten())
-#     offset = np.mean(data[:int(.01*len(sdat))])
-#     if y < 0:
-#         col = data[:, int(0)]
-#     elif y > data.shape[1]:
-#         col = data[:, int(data.shape[1]-1)]
-#     else:
-#         col = data[:, int(y)]
-#     var_x = abs((np.arange(col.size)-y)**2*col).sum()/col.sum()
-#     if var_x > 0:
-#         width_x = np.sqrt(var_x)
-#     else:
-#         width_x = data.shape[0]
-#     if x < 0:
-#         row = data[int(0), :]
-#     elif x > data.shape[0]:
-#         row = data[int(data.shape[0]-1), :]
-#     else:
-#         row = data[int(x), :]
-#     var_y = abs((np.arange(row.size)-x)**2*row).sum()/row.sum()
-#     if var_y > 0:
-#         width_y = np.sqrt(var_y)
-#     else:
-#         width_y = data.shape[1]
-#     height = data.max()
-#     return height, x, y, width_x, width_y, 0.0, offset
 
 def moments(data):
     """Returns (height, x, y, width_x, width_y)
@@ -73,7 +38,7 @@ def moments(data):
     width_y = np.sqrt(var_y)
 
     height = data.max()
-    return height, x, y, width_x, width_y, 0.0, offset
+    return height, x, y, width_x, width_y, 0.0
 
 
 def fitgaussian(data):
