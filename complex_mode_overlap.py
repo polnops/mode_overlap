@@ -129,7 +129,7 @@ def convolveComplex(dat_ref, dat, param_list,
 
     if plotflag2:
         plotCorrvsparams(param_list, xcpeaks1, xcpeaks2)
-
+        return param_list, xcpeaks1, xcpeaks2
 
 def datToxyz(dat, i = 0):
     return np.real(dat[:, 0]), np.real(dat[:, 1]), dat[:, 2+i]
