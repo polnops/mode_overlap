@@ -1,49 +1,12 @@
-import re
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import interpolate, signal
+from scipy import signal
 from gaussian_fitfunctions import *
+from commons import *
 
-
-def loadData(filename='normE_all.dat', param_name="w_slab"):
-
-    file = open(filename)
-    lst = []
-    for line in file:
-        lst += [line.split()]
-
-    param_list = [re.sub(r'\D', "", param) for param in lst[8]
-                  if param.startswith(param_name + "=")]
-
-    dat = convertStrtocomplex(lst)
-
-    return dat, param_list
-
-def convertStrtocomplex(lst):
-    b = np.char.replace(np.array(lst[9:]),'i','j')
-    return np.array(b,complex)
 
 def datToxyz(dat, i = 0):
     return np.real(dat[:, 0]), np.real(dat[:, 1]), dat[:, 2+i]
-
-
-def cropData(x, y, z, bound, scale, res):
-
-    mask = (x < bound)*(x > -bound)*(y < bound)*(y > -bound)
-
-    x = x[mask]
-    y = y[mask]
-    z = z[mask]
-
-    # some of these lines below may be redundant for rectangular grid
-    corners = scale*np.array([min(y), max(y), min(x), max(x)])
-
-    grid_x, grid_y = np.mgrid[corners[0]:corners[1]:res,
-                              corners[2]:corners[3]:res]
-
-    values = interpolate.griddata((y, x), z, (grid_x, grid_y),
-                                  method='nearest')
-
     return values, corners
 
 
@@ -107,13 +70,7 @@ def getCorrelation(values_ref, values):
         return xc_norm
 
 
-def fitCorrelation(xc_norm):
 
-    gaussianfitparam = fitgaussian(xc_norm)
-    xcfit = gaussian(*gaussianfitparam)
-    normpeak = gaussianfitparam[0]
-
-    return normpeak, xcfit
 
 
 def plotCorrvsparams(param_list, xcpeaks):
