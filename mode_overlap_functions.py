@@ -22,45 +22,7 @@ def plotData(dat, bound=4000, scale=1,
                    aspect='auto', cmap=plt.get_cmap('YlOrRd'))
         plt.show()
 
-def plotComplexData(dat, param_list, bound=2000, scale=1, res=500j):
-             
-    """handles norm E, complex Ex and Ey, loops through param list"""
-
-    for i in range(len(param_list)): 
-        x,y,z = datToxyz(dat,i)
-
-        values, corners = cropData(x, y, z, bound, scale, res)    
-
-        if i%3 == 0:
-            print("w=",param_list[i])
-
-            fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(10,2))
-            fig.suptitle('norm(E), Re(Ex), Im(Ex), Re(Ey), Im(Ey)')
-            axs[0].imshow(np.real(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('YlOrRd'))
-  
-        elif i%3 == 1:
-            axs[1].imshow(np.real(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('YlOrRd'))
-                
-            axs[2].imshow(np.imag(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('YlOrRd'))
-
-            axs[1].set_yticklabels([])
-            axs[2].set_yticklabels([])
-            
-        elif i%3 == 2:
-            axs[3].imshow(np.real(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('YlOrRd'))
-                
-            axs[4].imshow(np.imag(values), origin='lower', extent=corners.tolist(),
-                    aspect='auto', cmap=plt.get_cmap('YlOrRd'))
-
-            axs[3].set_yticklabels([])
-            axs[4].set_yticklabels([])
                   
-                    
-
 def getCorrelation(values_ref, values):
 
         xc = signal.correlate2d(
@@ -68,10 +30,6 @@ def getCorrelation(values_ref, values):
         xc_norm = xc**2/np.sum(values_ref**2)/np.sum(values**2)
 
         return xc_norm
-
-
-
-
 
 def plotCorrvsparams(param_list, xcpeaks):
     param_list = np.array(param_list, dtype=float)
