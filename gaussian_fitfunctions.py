@@ -51,3 +51,11 @@ def fitgaussian(data):
     p, success = optimize.leastsq(errorfunction, params)
     return p
     return matrix, datum
+
+def fitCorrelation(xc_norm):
+
+    gaussianfitparam = fitgaussian(xc_norm)
+    xcfit = gaussian(*gaussianfitparam)
+    normpeak = gaussianfitparam[0]
+
+    return normpeak, xcfit
