@@ -7,7 +7,6 @@ from commons import *
 
 def datToxyz(dat, i = 0):
     return np.real(dat[:, 0]), np.real(dat[:, 1]), dat[:, 2+i]
-    return values, corners
 
 
 def plotData(dat, bound=4000, scale=1,
@@ -21,6 +20,7 @@ def plotData(dat, bound=4000, scale=1,
         plt.imshow(values, origin='lower', extent=corners.tolist(),
                    aspect='auto', cmap=plt.get_cmap('YlOrRd'))
         plt.show()
+
 
                   
 def getCorrelation(values_ref, values):
@@ -70,7 +70,7 @@ def convolveData(dat_ref, dat_list, param_list,
         y = dat_list[:, 1]
         z = dat_list[:, 2+i]
 
-        values, corners     = cropData(x, y, z, bound,scale,res)       
+        values, corners = cropData(x, y, z, bound,scale,res)       
         xc_norm = getCorrelation(values_ref, values)
 
         if fitflag:
